@@ -6,6 +6,8 @@
 int part1(FILE *in);
 int part2(FILE *in);
 int isNice(char *line);
+int isNicer(char *line);
+int appearsTwice(char *line, char a, char b);
 
 int main()
 {
@@ -31,8 +33,12 @@ int part1(FILE *in)
 
 int part2(FILE *in)
 {
-    in = NULL;
-    return -1;
+    char *line = NULL;
+    size_t n = 0;
+    int count = 0;
+    while (getline(&line, &n, in) > 0 && *line != '\n')
+        count += isNicer(line);
+    return count;
 }
 
 int isNice(char *line)
@@ -59,5 +65,34 @@ int isNice(char *line)
             strstr(line, "xy") != NULL)
         return 0;
     return 1;
+}
+
+int isNicer(char *line)
+{
+    int i;
+    for (i = 1; i < strlen(line); i++)
+        if (appearsTwice(line, line[i-1], line[i]))
+            break;
+    if (i == strlen(line))
+        return 0;
+    for (i = 2; i < strlen(line); i++)
+        if (line[i-2] == line[i])
+            break;
+    if (i == strlen(line))
+        return 0;
+    return 1;
+}
+
+int appearsTwice(char *line, char a, char b)
+{
+    int count = 0;
+    for (int i = 1; i < strlen(line); i++)
+        if (line[i-1] == a && line[i] == b)
+        {
+            count++;
+            // No overlap
+            i++;
+        }
+    return count >= 2;
 }
 
