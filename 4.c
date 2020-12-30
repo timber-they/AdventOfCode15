@@ -9,7 +9,7 @@
 int part1(FILE *in);
 int part2(FILE *in);
 char *md5(char *string);
-int isValid(char *line, int number);
+int isValid(char *line, int number, int zeroes);
 
 int main()
 {
@@ -30,11 +30,11 @@ int part1(FILE *in)
         return -1;
     *strchr(line, '\n') = '\0';
     for (int i = 0;; i++)
-        if (isValid(line, i))
+        if (isValid(line, i, 5))
             return i;
 }
 
-int isValid(char *line, int number)
+int isValid(char *line, int number, int zeroes)
 {
     char *clone = malloc((MINE_LENGTH + LINE_LENGTH + 1) * sizeof(*clone));
     strcpy(clone, line);
@@ -43,19 +43,24 @@ int isValid(char *line, int number)
     strcat(clone, str);
     char *res = md5(clone);
     int i;
-    for (i = 0; i < 5; i++)
+    for (i = 0; i < zeroes; i++)
         if (res[i] != '0')
             break;
 
     free(clone);
     free(res);
-    return i == 5;
+    return i == zeroes;
 }
 
 int part2(FILE *in)
 {
-    in = NULL;
-    return -1;
+    char line[LINE_LENGTH+MINE_LENGTH+2];
+    if (fgets(line, LINE_LENGTH+2, in) == NULL)
+        return -1;
+    *strchr(line, '\n') = '\0';
+    for (int i = 0;; i++)
+        if (isValid(line, i, 6))
+            return i;
 }
 
 char *md5(char *string)
