@@ -7,6 +7,7 @@
 int part1(FILE *in);
 int part2(FILE *in);
 void apply(char *line, int *field);
+void apply2(char *line, int *field);
 
 int main()
 {
@@ -63,9 +64,47 @@ void apply(char *line, int *field)
     }
 }
 
+void apply2(char *line, int *field)
+{
+    int x1, y1, x2, y2;
+    if (strstr(line, "toggle") != NULL)
+    {
+        if (!(sscanf(line, "toggle %d,%d through %d,%d\n", &x1, &y1, &x2, &y2)))
+            exit(1);
+        for (int y = y1; y <= y2; y++)
+            for (int x = x1; x <= x2; x++)
+                field[y * SIZE + x] += 2;
+    }
+    else if (strstr(line, "on") != NULL)
+    {
+        if (!(sscanf(line, "turn on %d,%d through %d,%d\n", &x1, &y1, &x2, &y2)))
+            exit(1);
+        for (int y = y1; y <= y2; y++)
+            for (int x = x1; x <= x2; x++)
+                field[y * SIZE + x]++;
+    }
+    else if (strstr(line, "off") != NULL)
+    {
+        if (!(sscanf(line, "turn off %d,%d through %d,%d\n", &x1, &y1, &x2, &y2)))
+            exit(1);
+        for (int y = y1; y <= y2; y++)
+            for (int x = x1; x <= x2; x++)
+                if (field[y * SIZE + x] > 0)
+                    field[y * SIZE + x]--;
+    }
+}
+
 int part2(FILE *in)
 {
-    in = NULL;
-    return -1;
+    int field[SIZE * SIZE] = {0};
+    size_t n = 0;
+    char *line = NULL;
+    while (getline(&line, &n, in) > 0 && *line != '\n')
+        apply2(line, field);
+    int count = 0;
+    for (int i = 0; i < SIZE * SIZE; i++)
+        count += field[i];
+    free(line);
+    return count;
 }
 
