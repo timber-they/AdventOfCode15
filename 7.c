@@ -56,8 +56,18 @@ int part1(FILE *in)
 
 int part2(FILE *in)
 {
-    in = NULL;
-    return -1;
+    Connection *connections = getConnections(in);
+    unsigned short res = getValue(identify("a"), connections);
+    memset(known, 0, (26+1) * (26+1) * sizeof(*known));
+    for (int i = 0; i < CONNECTION_CNT; i++)
+        if (connections[i].out == identify("b"))
+        {
+            connections[i].type = Value;
+            connections[i].value = res;
+        }
+    res = getValue(identify("a"), connections);
+    free(connections);
+    return res;
 }
 
 Connection *getConnections(FILE *in)
