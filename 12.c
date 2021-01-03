@@ -2,9 +2,6 @@
 #include <stdlib.h>
 #include <string.h>
 
-// A guess
-#define MAX_DEPTH 1000
-
 int part1(FILE *in);
 int part2(FILE *in);
 int sumNumbers(char *data);

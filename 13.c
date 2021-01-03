@@ -9,9 +9,12 @@ int part1(FILE *in);
 int part2(FILE *in);
 int identify(char *name);
 int *createHappinessMatrix(FILE *in);
+int *createHappinessMatrix2(FILE *in);
 int maxHappiness(int *matrix, int *seats, int seated);
+int maxHappiness2(int *matrix, int *seats, int seated);
 int contains(int *haystack, int needle, int n);
 int getHappiness(int *matrix, int a, int b);
+int getHappiness2(int *matrix, int a, int b);
 
 int main()
 {
@@ -37,8 +40,12 @@ int part1(FILE *in)
 
 int part2(FILE *in)
 {
-    in = NULL;
-    return -1;
+    int *happinessMatrix = createHappinessMatrix2(in);
+    int seats[PERSON_COUNT+1] = {0};
+    int res = maxHappiness2(happinessMatrix, seats, 0);
+
+    free(happinessMatrix);
+    return res;
 }
 
 int maxHappiness(int *matrix, int *seats, int seated)
@@ -72,10 +79,47 @@ int maxHappiness(int *matrix, int *seats, int seated)
     return max;
 }
 
+int maxHappiness2(int *matrix, int *seats, int seated)
+{
+    if (seated == 0)
+    {
+        seats[seated] = 1;
+        return maxHappiness2(matrix, seats, seated+1);
+    }
+    if (seated == PERSON_COUNT)
+    {
+        int i;
+        for (i = 1; i <= PERSON_COUNT+1; i++)
+            if (!contains(seats, i, seated))
+                break;
+        seats[seated] = i;
+        return getHappiness2(matrix, seats[seated], seats[seated-1]) +
+               getHappiness2(matrix, seats[seated], seats[0]);
+    }
+    int max = 0;
+    for (int i = 0; i <= PERSON_COUNT; i++)
+    {
+        if (contains(seats, i+1, seated))
+            continue;
+        seats[seated] = i+1;
+        int happiness = getHappiness2(matrix, seats[seated], seats[seated-1]);
+        happiness += maxHappiness2(matrix, seats, seated+1);
+        if (happiness > max)
+            max = happiness;
+    }
+    return max;
+}
+
 int getHappiness(int *matrix, int a, int b)
 {
     return matrix[(a-1) * PERSON_COUNT + (b-1)] +
            matrix[(b-1) * PERSON_COUNT + (a-1)];
+}
+
+int getHappiness2(int *matrix, int a, int b)
+{
+    return matrix[(a-1) * (PERSON_COUNT+1) + (b-1)] +
+           matrix[(b-1) * (PERSON_COUNT+1) + (a-1)];
 }
 
 int contains(int *haystack, int needle, int n)
@@ -112,6 +156,38 @@ int *createHappinessMatrix(FILE *in)
             happiness = -happiness;
         }
         matrix[identify(a) * PERSON_COUNT + identify(b)] = happiness;
+    }
+
+    free(line);
+    return matrix;
+}
+
+int *createHappinessMatrix2(FILE *in)
+{
+    char *line = NULL;
+    size_t n = 0;
+    int *matrix = calloc((PERSON_COUNT+1) * (PERSON_COUNT+1), sizeof(*matrix));
+    if (matrix == NULL)
+    {
+        fprintf(stderr, "Couldn't alloc\n");
+        exit(-2);
+    }
+    while (getline(&line, &n, in) > 0 && line != NULL && *line != '\n')
+    {
+        char a[NAME_LENGTH+2], b[NAME_LENGTH+2];
+        int happiness = -1;
+        if (sscanf(line, "%s would gain %d happiness units by sitting next to %[^.].\n",
+                    a, &happiness, b) != 3)
+        {
+            if (sscanf(line, "%s would lose %d happiness units by sitting next to %[^.].\n",
+                        a, &happiness, b) != 3)
+            {
+                fprintf(stderr, "Couldn't parse line %s", line);
+                exit(2);
+            }
+            happiness = -happiness;
+        }
+        matrix[identify(a) * (PERSON_COUNT+1) + identify(b)] = happiness;
     }
 
     free(line);
