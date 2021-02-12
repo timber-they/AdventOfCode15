@@ -17,6 +17,7 @@ int part2(FILE *in);
 Reindeer *getReindeers(FILE *in);
 void printReindeer(Reindeer reindeer);
 int travel(Reindeer reindeer, int time);
+int score2(Reindeer *reindeers, int time);
 
 int main()
 {
@@ -50,7 +51,14 @@ int part1(FILE *in)
 
 int part2(FILE *in)
 {
-    in = NULL;
+    Reindeer *reindeers = getReindeers(in);
+    int res = score2(reindeers, TIME);
+    free(reindeers);
+    return res;
+}
+
+int score2(Reindeer *reindeers, int time)
+{
     return -1;
 }
 
