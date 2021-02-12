@@ -59,7 +59,30 @@ int part2(FILE *in)
 
 int score2(Reindeer *reindeers, int time)
 {
-    return -1;
+    int *scores = calloc(REINDEER_CNT, sizeof(*scores));
+    for (int i = 1; i <= time; i++)
+    {
+        int max = 0;
+        for (int j = 0; j < REINDEER_CNT; j++)
+        {
+            int dist = travel(reindeers[j], i);
+            if (dist > max)
+                max = dist;
+        }
+        for (int j = 0; j < REINDEER_CNT; j++)
+        {
+            int dist = travel(reindeers[j], i);
+            if (dist == max)
+                scores[j]++;
+        }
+    }
+
+    int max = 0;
+    for (int j = 0; j < REINDEER_CNT; j++)
+        if (scores[j] > max)
+            max = scores[j];
+    free(scores);
+    return max;
 }
 
 int travel(Reindeer reindeer, int time)
